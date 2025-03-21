@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReservationType {
+  borrow
+  return
+}
+
+model Todo {
+  id            Int       @id @default(autoincrement())
+  title         String    @db.VarChar(100)
+  description   String?
+  status        Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@map("todos")
+}
+
+model User {
+  user_id       Int       @id @default(autoincrement())
+  name          String    @db.VarChar(100)
+  email         String    @unique
+  password      String
+  mobile        String    @db.VarChar(15)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@map("users")
+  Members Member[]
+  Book Book[]
+  Transaction Transaction[]
+}
+
+model Member {
+  id            Int       @id @default(autoincrement())
+  user          User      @relation(fields: [user_id], references: [user_id])
+  user_id       Int
+  name          String    @db.VarChar(100)
+  email         String    @unique
+  password      String
+  mobile        String    @db.VarChar(15)
+  address       String    @db.VarChar(191)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@map("members")
+  Transaction Transaction[]
+}
+
+model Book {
+  id         Int    @id @default(autoincrement())
+  user          User      @relation(fields: [user_id], references: [user_id])
+  user_id       Int       
+  title      String @db.VarChar(191)
+  author     String @db.VarChar(191)
+  quantity   Int?
+  availability Boolean @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("books")
+  Transaction Transaction[]
+}
+
+model Transaction {
+  id         Int    @id @default(autoincrement())
+  user       User   @relation(fields: [userId], references: [user_id])
+  userId     Int
+  member     Member @relation(fields: [memberId], references: [id])
+  memberId   Int
+  book       Book   @relation(fields: [bookId], references: [id])
+  bookId      Int
+  transactionDate  DateTime @default(now())
+  type            ReservationType @default(borrow)
+
+  @@map("transactions")
+}
