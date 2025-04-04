@@ -15,12 +15,6 @@ export class AuthController {
   }
 
   @Public()
-  @Post('registerTodo')
-  registerTodo(@Body() registerDto: RegisterTodoDto) {
-    return this.authService.registerTodo(registerDto);
-  }
-
-  @Public()
   @Post('loginUser')
   loginUser(@Body() loginUserDto: LoginUserDto){
     return this.authService.loginUser(loginUserDto);

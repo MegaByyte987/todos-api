@@ -19,11 +19,6 @@ export class AuthService {
         return { token };
     }
 
-    async registerTodo(registertodoDto: RegisterTodoDto){
-        const todo = await this.todosService.create(registertodoDto);
-        return todo;
-    }
-
     async loginUser(loginUserDto: LoginUserDto){
         const user = await this.prisma.user.findFirst({
             where: {
