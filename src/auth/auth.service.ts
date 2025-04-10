@@ -7,17 +7,25 @@ import { JwtService }                       from '@nestjs/jwt';
 import { LoginUserDto }                     from './dto/login.dto';
 import { compare }                          from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class AuthService {
     constructor(private readonly prisma: PrismaClient, private readonly usersService: UsersService,
         private readonly todosService: TodosService, private readonly jwtService: JwtService,
+        @InjectQueue('auth') private readonly queue: Queue,
     ) {}
 
     async registerUser(registeruserDto: RegisterUserDto){
         const user = await this.usersService.create(registeruserDto);
+        await this.queue.add('veryfyEmailAddress',{
+            from: 'test@example.com',
+            to: 'test@test.com',
+            otp: 123456
+        });
         const token = await this.jwtService.signAsync(user);
-        return { token };
+        return {token};
     }
 
     async loginUser(loginUserDto: LoginUserDto){
@@ -54,4 +62,5 @@ export class AuthService {
     async updateProfile(user_id:number, updateProfileDto: UpdateProfileDto){
         return this.usersService.update(user_id, updateProfileDto);
     }
+
 }

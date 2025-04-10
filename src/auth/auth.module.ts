@@ -3,8 +3,8 @@ import { AuthService }    from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaClient }   from '@prisma/client';
 import { UsersService }   from 'src/users/users.service';
-import { TodosService }   from 'src/todos/todos.service';
 import { JwtModule }      from '@nestjs/jwt';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -12,7 +12,10 @@ import { JwtModule }      from '@nestjs/jwt';
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: {expiresIn: '1h'},
-    })
+    }),
+    BullModule.registerQueue({
+      name: 'auth',
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService,PrismaClient,UsersService],
